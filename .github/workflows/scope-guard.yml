@@ -1,0 +1,45 @@
+# .github/workflows/scope-guard.yml
+name: scope-guard
+on: pull_request
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+
+      # Fails loudly if eslint.presentation.js got dropped or the config was
+      # replaced instead of extended. Without this, every check below can pass
+      # against a config with no rules in it.
+      - name: Guard integrity (rules are actually loaded)
+        run: |
+          CFG=$(npx eslint --print-config src/flows/routes.tsx)
+          echo "$CFG" | grep -q '"react/forbid-elements"'    || { echo "::error::Mantine-only rule missing — eslint.config.js was replaced, not extended"; exit 1; }
+          echo "$CFG" | grep -q '"react-hooks/rules-of-hooks"' || { echo "::error::react-hooks missing — the Vite template config was clobbered"; exit 1; }
+          echo "$CFG" | grep -q '"no-restricted-imports"'    || { echo "::error::no-logic-in-presentation rule missing"; exit 1; }
+          echo "✓ presentation guardrails are live"
+
+      - name: Types
+        run: npx tsc --noEmit
+
+      - name: Lint presentation folders (Mantine-only + tokens + no logic)
+        run: npx eslint "src/{shared/ui,features/*/ui,flows,theme,stories}/**/*.{ts,tsx}" --max-warnings=0
+
+      # The bridge must stay generic: /app reads flows/routes.tsx, it never names
+      # screens. If this fails, someone hardcoded a route and designers will be
+      # forced into /app on their next flow.
+      - name: Router bridge is generic
+        run: |
+          grep -q 'from "../flows/routes"' src/app/router.tsx \
+            || { echo "::error::src/app/router.tsx no longer consumes flows/routes.tsx"; exit 1; }
+          echo "✓ router bridge consumes /flows"
+
+      - name: Scope check (designer stays in presentation)
+        run: node scripts/check-scope.mjs
+        env:
+          GITHUB_BASE_REF: origin/${{ github.base_ref }}

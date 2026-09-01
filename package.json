@@ -1,0 +1,60 @@
+{
+  "name": "design-in-code",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k -n app,storybook -c cyan,magenta \"npm:dev:app\" \"npm:dev:storybook\"",
+    "dev:app": "vite",
+    "dev:storybook": "storybook dev -p 6006 --no-open",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "build-storybook": "storybook build",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@mantine/core": "^9.5.2",
+    "@mantine/dates": "^9.5.2",
+    "@mantine/form": "^9.5.2",
+    "@mantine/hooks": "^9.5.2",
+    "@mantine/modals": "^9.5.2",
+    "@mantine/notifications": "^9.5.2",
+    "@tabler/icons-react": "^3.46.0",
+    "@tanstack/react-query": "^5.102.2",
+    "@tanstack/react-router": "^1.170.32",
+    "dayjs": "^1.11.23",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "zod": "^4.4.3",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@types/node": "^24.13.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@vitejs/plugin-react": "^6.1.0",
+    "concurrently": "^10.0.5",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.4",
+    "globals": "^17.11.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.3.0",
+    "postcss": "^8.5.26",
+    "postcss-preset-mantine": "^1.18.0",
+    "postcss-simple-vars": "^7.0.1",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.67.0",
+    "vite": "^8.2.2",
+    "storybook": "^10.5.10",
+    "@storybook/react-vite": "^10.5.10",
+    "eslint-plugin-storybook": "^10.5.10"
+  },
+  "lint-staged": {
+    "src/{shared/ui,features/*/ui,flows,theme,stories}/**/*.{ts,tsx}": [
+      "eslint --max-warnings=0"
+    ]
+  }
+}
