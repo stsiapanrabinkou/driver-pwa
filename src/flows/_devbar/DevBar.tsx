@@ -53,7 +53,12 @@ function DevBarPanel() {
   // by default.
   useEffect(() => {
     document.documentElement.style.setProperty("--devbar-height", hidden ? "0px" : "44px");
-    return () => document.documentElement.style.removeProperty("--devbar-height");
+    // removeProperty returns the removed value (a string) — wrapped in
+    // braces so the cleanup function returns void, not that string, which
+    // useEffect's cleanup type disallows.
+    return () => {
+      document.documentElement.style.removeProperty("--devbar-height");
+    };
   }, [hidden]);
 
   const all = useMemo(() => flattenRoutes(), []);

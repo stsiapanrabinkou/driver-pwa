@@ -18,6 +18,7 @@ import {
   createRouter,
   Outlet,
   type AnyRoute,
+  type RouteComponent,
 } from "@tanstack/react-router";
 import { ThemeProvider } from "../theme/ThemeProvider";
 import DevBar from "../flows/_devbar/DevBar";
@@ -57,7 +58,12 @@ function build(nodes: FlowRoute[], parent: AnyRoute): AnyRoute[] {
       return createRoute({
         getParentRoute: () => parent,
         path: toRouterPath(node.path),
-        component: node.component ?? Outlet,
+        // FlowRoute["component"] is typed as React.ComponentType (the wide
+        // designer-facing type, which also permits class components) —
+        // TanStack's RouteComponent is stricter about that, so the runtime
+        // tree assembled here needs the same cast every function component
+        // slots into naturally.
+        component: (node.component ?? Outlet) as RouteComponent,
       }) as AnyRoute;
     }
 
@@ -74,7 +80,7 @@ function build(nodes: FlowRoute[], parent: AnyRoute): AnyRoute[] {
         createRoute({
           getParentRoute: () => layout,
           path: "/",
-          component: node.component,
+          component: node.component as RouteComponent,
         }) as AnyRoute
       );
     }
