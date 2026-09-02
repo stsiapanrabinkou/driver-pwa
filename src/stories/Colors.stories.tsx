@@ -41,7 +41,7 @@ function ColorScale({ name, colors, description }: { name: string; colors: reado
         <Title order={4}>{name}</Title>
         <Text size="sm" c="dimmed">{description}</Text>
       </Stack>
-      <Group gap="sm" wrap="wrap">
+      <Group gap="sm" wrap="wrap" align="flex-start">
         {colors.map((hex, index) => (
           <Swatch key={index} hex={hex} index={index} note={SHADE_NOTE[index]} />
         ))}
