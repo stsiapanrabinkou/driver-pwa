@@ -3,7 +3,7 @@
 // These are Props variations only; the component itself doesn't change.
 
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Box } from "@mantine/core";
+import { Box, Stack, Text } from "@mantine/core";
 import { within, userEvent } from "storybook/test";
 import { SyncStatusBar } from "./SyncStatusBar";
 import { mockPendingSync } from "./mockPendingSync";
@@ -28,6 +28,37 @@ const meta: Meta<typeof SyncStatusBar> = {
 export default meta;
 
 type Story = StoryObj<typeof SyncStatusBar>;
+
+// Controls-driven single instance — the base pair every other component
+// story starts with, kept alongside the named states below since this
+// component's states are too state-machine-y (collapsed/expanded × pending
+// queue length × connection) to fold into one Controls-only story.
+export const Playground: Story = {
+  args: { connection: "offline", pendingItems: mockPendingSync.slice(0, 3) },
+};
+
+export const AllStates: Story = {
+  name: "All states (gallery)",
+  render: () => (
+    <PhoneFrame>
+      <Stack gap="md">
+        {(
+          [
+            ["Offline · pending", { connection: "offline" as const, pendingItems: mockPendingSync.slice(0, 3) }],
+            ["Offline · fully synced", { connection: "offline" as const, pendingItems: [] }],
+            ["Online · syncing", { connection: "online" as const, pendingItems: mockPendingSync.slice(0, 3) }],
+            ["Online · fully synced", { connection: "online" as const, pendingItems: [] }],
+          ] as const
+        ).map(([label, props]) => (
+          <Stack key={label} gap={4}>
+            <Text size="sm" c="dimmed">{label}</Text>
+            <SyncStatusBar {...props} onRetry={() => console.log("retry sync")} />
+          </Stack>
+        ))}
+      </Stack>
+    </PhoneFrame>
+  ),
+};
 
 export const OfflineFewPendingCollapsed: Story = {
   name: "Offline · Few pending, no scroll (collapsed)",

@@ -9,6 +9,7 @@ import { AppScreen } from "../../shared/ui/AppScreen/AppScreen";
 import { BottomNav } from "../../shared/ui/BottomNav/BottomNav";
 import { ShipmentCard } from "../../shared/ui/ShipmentCard/ShipmentCard";
 import { mockShipments, type ShipmentMock } from "../../shared/ui/ShipmentCard/mockShipments";
+import { ACTIVE_STAGES } from "../../shared/ui/StatusBadge/shipmentStage";
 import { SyncStatusBar, type PendingSyncItem } from "../../shared/ui/SyncStatusBar/SyncStatusBar";
 import { mockPendingSync } from "../../shared/ui/SyncStatusBar/mockPendingSync";
 import { styles } from "./HomeScreen.styles";
@@ -16,11 +17,9 @@ import { styles } from "./HomeScreen.styles";
 // ---- inline mock data (Design Mode — Dev wires the real feed later) ----
 const today = { weekday: "Aug 13, Tue", time: "09:41" };
 
-// "Active" and "Delayed" both mirror the active-shipments list below — a
-// delay is a flag on an active shipment, so it can't be nonzero once that
-// list is empty. "Delivered" covers shipments outside today's active set, so
-// it stays a static mock value.
-const DELIVERED_STAT = { label: "Delivered", value: 2, icon: IconCircleCheckFilled, color: "green" };
+// mockShipments is the full fleet (Shipments tab shows all of it) — Home
+// only ever means the ones still in flight.
+const DEFAULT_ACTIVE_SHIPMENTS = mockShipments.filter((s) => ACTIVE_STAGES.has(s.stage));
 
 function buildStats(activeShipments: ShipmentMock[]) {
   return [
@@ -31,7 +30,12 @@ function buildStats(activeShipments: ShipmentMock[]) {
       icon: IconAlertTriangleFilled,
       color: "yellow",
     },
-    DELIVERED_STAT,
+    {
+      label: "Delivered",
+      value: mockShipments.filter((s) => s.stage === "delivered").length,
+      icon: IconCircleCheckFilled,
+      color: "green",
+    },
   ];
 }
 
@@ -50,7 +54,7 @@ export interface HomeScreenProps {
 export function HomeScreen({
   syncPendingItems = mockPendingSync,
   syncConnection = "offline",
-  activeShipments = mockShipments,
+  activeShipments = DEFAULT_ACTIVE_SHIPMENTS,
 }: HomeScreenProps = {}) {
   const navigate = useNavigate();
   const stats = buildStats(activeShipments);

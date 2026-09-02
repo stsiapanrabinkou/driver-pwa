@@ -82,6 +82,7 @@ export const theme = createTheme({
     Select: { defaultProps: bigControlSizes },
     NativeSelect: { defaultProps: bigControlSizes },
     MultiSelect: { defaultProps: bigControlSizes },
+    DatePickerInput: { defaultProps: bigControlSizes },
     Checkbox: { defaultProps: { size: "md" } },
     Radio: { defaultProps: { size: "md" } },
     Switch: { defaultProps: { size: "md" } },

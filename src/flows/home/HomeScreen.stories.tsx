@@ -7,7 +7,13 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Box } from "@mantine/core";
 import { HomeScreen } from "./HomeScreen";
 import { mockShipments } from "../../shared/ui/ShipmentCard/mockShipments";
+import { ACTIVE_STAGES } from "../../shared/ui/StatusBadge/shipmentStage";
 import { mockPendingSync } from "../../shared/ui/SyncStatusBar/mockPendingSync";
+
+// Home only ever means shipments still in flight — mockShipments is the
+// full fleet (delivered/returned included), same distinction HomeScreen
+// itself makes for its own default.
+const activeMockShipments = mockShipments.filter((s) => ACTIVE_STAGES.has(s.stage));
 
 const SYNC_PRESETS = {
   "Offline · Pending": { syncConnection: "offline" as const, syncPendingItems: mockPendingSync },
@@ -53,7 +59,7 @@ export const Default: Story = {
   render: ({ syncState, hasActiveShipments }) => (
     <HomeScreen
       {...SYNC_PRESETS[syncState]}
-      activeShipments={hasActiveShipments ? mockShipments : []}
+      activeShipments={hasActiveShipments ? activeMockShipments : []}
     />
   ),
 };

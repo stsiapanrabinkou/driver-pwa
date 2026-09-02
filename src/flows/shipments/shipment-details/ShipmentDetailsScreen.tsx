@@ -252,11 +252,17 @@ export function ShipmentDetailsScreen() {
       }
       footer={
         <div ref={footerRef} style={styles.footer}>
-          <div style={styles.footerCta}>
-            <Button fullWidth onClick={handlePrimaryAction}>
-              {CTA_LABEL[stage]}
-            </Button>
-          </div>
+          {/* Delivered/returned is a resting state, not another action —
+              the driver already has BottomNav to leave whenever, so a
+              "Back to Home" CTA here was just a redundant second way to do
+              the same thing. */}
+          {!isFinal && (
+            <div style={styles.footerCta}>
+              <Button fullWidth onClick={handlePrimaryAction}>
+                {CTA_LABEL[stage]}
+              </Button>
+            </div>
+          )}
           <BottomNav />
         </div>
       }
@@ -404,9 +410,6 @@ export function ShipmentDetailsScreen() {
       <ReportIssueModal
         opened={reportIssue}
         onClose={reportIssueHandlers.close}
-        shipmentId={shipmentId}
-        from={shipment.from}
-        to={shipment.to}
         onSubmit={handleReportIssue}
       />
       <CompleteDeliveryModal

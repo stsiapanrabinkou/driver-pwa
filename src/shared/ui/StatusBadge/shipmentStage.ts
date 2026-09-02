@@ -29,3 +29,10 @@ export const STAGE_PROGRESS: Record<ShipmentStage, number> = {
   delivered: 100,
   returned: 100,
 };
+
+// Every stage before the shipment is resolved — Home's active-shipments
+// list and stats, and the Shipments tab's "Active" filter, both mean this
+// same grouping.
+export const ACTIVE_STAGES: ReadonlySet<ShipmentStage> = new Set([
+  "planned", "en_route_to_pickup", "loading", "in_transit", "unloading",
+]);

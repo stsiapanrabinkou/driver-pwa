@@ -5,7 +5,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { CompleteDeliveryModal } from "./CompleteDeliveryModal";
 
 const meta: Meta<typeof CompleteDeliveryModal> = {
-  title: "Screens/Shipment Details/CompleteDeliveryModal",
+  title: "Screens/Complete Delivery",
   component: CompleteDeliveryModal,
   args: {
     opened: true,

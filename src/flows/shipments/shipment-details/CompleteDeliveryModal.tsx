@@ -1,6 +1,6 @@
 import { useRef, useState, type MouseEvent } from "react";
 import {
-  ActionIcon, Button, Card, Collapse, FileButton, Group, Modal, Radio, Stack, Text, TextInput, UnstyledButton,
+  ActionIcon, Button, Card, Collapse, FileButton, Group, Modal, Radio, Stack, Text, Textarea, TextInput, UnstyledButton,
 } from "@mantine/core";
 import {
   IconArrowLeft, IconChevronRight, IconCircleCheckFilled,
@@ -31,6 +31,7 @@ export interface CompleteDeliveryResult {
   recipientName?: string;
   signatureCollected?: boolean;
   returnReason?: ReturnReason;
+  returnComment?: string;
 }
 
 export interface CompleteDeliveryModalProps {
@@ -50,6 +51,7 @@ export function CompleteDeliveryModal({ opened, onClose, onSubmit }: CompleteDel
   const [recipientName, setRecipientName] = useState("");
   const [signatureCollected, setSignatureCollected] = useState(false);
   const [returnReason, setReturnReason] = useState<ReturnReason | null>(null);
+  const [returnComment, setReturnComment] = useState("");
   const resetPodFileRef = useRef<() => void>(null);
 
   // POD document isn't required here — it can be attached separately from
@@ -66,6 +68,7 @@ export function CompleteDeliveryModal({ opened, onClose, onSubmit }: CompleteDel
     setRecipientName("");
     setSignatureCollected(false);
     setReturnReason(null);
+    setReturnComment("");
   }
 
   function handleCancel() {
@@ -305,22 +308,66 @@ export function CompleteDeliveryModal({ opened, onClose, onSubmit }: CompleteDel
               </Collapse>
             </>
           ) : (
-            <Stack gap="xs">
-              <Text fw={700} px={8}>Reason for return</Text>
-              <Radio.Group
-                value={returnReason ?? ""}
-                onChange={(value) => setReturnReason(value as ReturnReason)}
-              >
-                <Stack gap="sm">
-                  {RETURN_REASONS.map(({ value, label }) => (
-                    <Radio.Card key={value} value={value} p="md" radius={CARD_RADIUS}>
-                      <Radio.Indicator mr="sm" />
-                      <Text fw={600}>{label}</Text>
-                    </Radio.Card>
-                  ))}
-                </Stack>
-              </Radio.Group>
-            </Stack>
+            <>
+              <Stack gap="xs">
+                <Text fw={700} px={8}>
+                  Reason for return <Text span c="red" fw={700}>*</Text>
+                </Text>
+                <Radio.Group
+                  value={returnReason ?? ""}
+                  onChange={(value) => setReturnReason(value as ReturnReason)}
+                >
+                  <Stack gap={4}>
+                    {/* Radio.Card lays its children out in a plain block by
+                        default — the indicator and label only sit side by
+                        side once wrapped in a Group. h=48 + Group h="100%"
+                        matches every other field's height in this modal.
+                        Default state is a plain grey fill — same dark.6 tile
+                        background every Card in this app defaults to (see
+                        tokens.ts) — rather than a border, matching how other
+                        components here read as "resting". Selected swaps to
+                        the same "2px solid signal" treatment as the
+                        Delivered/Returned outcome cards above. */}
+                    {RETURN_REASONS.map(({ value, label }) => {
+                      const active = returnReason === value;
+                      return (
+                        <Radio.Card
+                          key={value}
+                          value={value}
+                          px="md"
+                          h={48}
+                          bg="dark.6"
+                          // Input-shaped radius (theme default "lg"), not
+                          // CARD_RADIUS — at a 48px height CARD_RADIUS (32)
+                          // rounds into a full pill, but these read as a
+                          // list of fields, not cards.
+                          radius="lg"
+                          style={{
+                            border: active ? "2px solid var(--mantine-color-signal-6)" : "none",
+                          }}
+                        >
+                          <Group gap="sm" h="100%" wrap="nowrap">
+                            <Radio.Indicator />
+                            <Text fw={600}>{label}</Text>
+                          </Group>
+                        </Radio.Card>
+                      );
+                    })}
+                  </Stack>
+                </Radio.Group>
+              </Stack>
+
+              <Stack gap="xs">
+                <Text fw={700} px={8}>Comment</Text>
+                <Textarea
+                  placeholder="Add any additional detail about the return"
+                  value={returnComment}
+                  onChange={(event) => setReturnComment(event.currentTarget.value)}
+                  minRows={3}
+                  autosize
+                />
+              </Stack>
+            </>
           )}
         </Stack>
 
@@ -339,7 +386,11 @@ export function CompleteDeliveryModal({ opened, onClose, onSubmit }: CompleteDel
             fullWidth
             disabled={!canConfirm}
             onClick={() => {
-              onSubmit({ outcome, recipientName, signatureCollected, returnReason: returnReason ?? undefined });
+              onSubmit({
+                outcome, recipientName, signatureCollected,
+                returnReason: returnReason ?? undefined,
+                returnComment: returnComment.trim() || undefined,
+              });
               reset();
             }}
           >
